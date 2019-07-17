@@ -1,1 +1,9 @@
+__pycache__
 .env
+packaged.yaml
+
+*.zip
+
+layer/python
+
+!layer/python/requirements.txt

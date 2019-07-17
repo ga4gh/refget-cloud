@@ -3,78 +3,66 @@ import requests
 from config.sequences import *
 from config.constants import *
 from config.service_info import *
+from middleware.functions import *
 from middleware.media_type import MediaTypeMidware
+from middleware.query_parameters import QueryParametersMidware
+from middleware.sequence_id import SequenceIdMidware
+from middleware.start import StartMidware
 
-def get_trunc512_id(seqid):
-    trunc512_id = None
-    
-    if seqid in SEQUENCE_TRUNC512:
-        trunc512_id = seqid
-    else:
-        if seqid in CHECKSUM_MAP.keys():
-            trunc512_id = CHECKSUM_MAP[seqid]
-    
-    return trunc512_id
+def get_sequence(event, context):
 
-def get_sequence(e, c):
+    @StartMidware(event, context)
+    @MediaTypeMidware(event, context, 
+                      supported_media_types=[DEFAULT_CONTENT_TYPE_TEXT])
+    @SequenceIdMidware(event, context)
+    @QueryParametersMidware(event, context)
+    def worker(partial_response):
 
-    log = ""
-    seqid = e['pathParameters']['id']
-    response_body = "Invalid id, no resource found"
-    trunc512_id = get_trunc512_id(seqid)
-    
-    if trunc512_id:
+        response = partial_response
+        d = response["data"]
+        trunc512_id, start, end, subseq_type = \
+            d["trunc512_id"], d["start"], d["end"], d["subseq_type"]
+        
         uri = S3_BASE_URL + trunc512_id
         s3_response = requests.get(uri)
-        log += str(s3_response.status_code) + "; "
-        log += str(s3_response.text) + "; "
-        response_seq = s3_response.text
+        seq = s3_response.text
+        
+        start_idx = int(start) if start else 0
+        end_idx = int(end) if end else len(seq)
+        end_idx = end_idx + 1 if subseq_type == "range" else end_idx
+        seq = seq[start_idx:end_idx]
+        
+        if subseq_type == "range":
+            response["statusCode"] = 206
+        response["headers"]["Content-Length"] = len(seq)
+        response["body"] = seq
+                
+        return response
 
-        if e['queryStringParameters']:
-            q = e['queryStringParameters']
-            start = 0 if "start" not in q.keys() else int(q["start"])
-            end = len(response_seq) if "end" not in q.keys() else int(q["end"])
-            response_seq = response_seq[start:end]
-            
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": DEFAULT_CONTENT_TYPE_TEXT + "; " + CHARSET,
-            "Content-Length": len(response_seq)
-        },
-        "body": response_seq
-        # "body": json.dumps({
-        #     "log": log,
-        #     "event": str(e)
-        # })
-    }
+    return finalize_response(worker())
 
 def get_metadata(event, context):
 
+    @StartMidware(event, context)
     @MediaTypeMidware(event, context)
-    def worker(midware_response):
-        response = midware_response
-
-        seqid = event['pathParameters']['id']
-        trunc512_id = get_trunc512_id(seqid)
-        if trunc512_id:
-            response["body"] = json.dumps({"metadata": METADATA[trunc512_id]})
-        else:
-            response["statusCode"] = 404
-            response["body"] = json.dumps({
-                "message": "resource not found"
-            })
-
+    @SequenceIdMidware(event, context)
+    def worker(partial_response):
+        
+        response = partial_response
+        trunc512_id = response["data"]["trunc512_id"]
+        response["body"] = json.dumps({"metadata": METADATA[trunc512_id]})
+        
         return response
-    return worker()
+    return finalize_response(worker())
 
 def get_service_info(event, context):
     
+    @StartMidware(event, context)
     @MediaTypeMidware(event, context)
-    def worker(midware_response):
-        response = midware_response
+    def worker(partial_response):
+        response = partial_response
         response["body"] = json.dumps({
             "service": SERVICE_INFO
         })
         return response
-    return worker()
+    return finalize_response(worker())
