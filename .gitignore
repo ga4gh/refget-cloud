@@ -4,6 +4,6 @@ packaged.yaml
 
 *.zip
 
-layer/python
+refget-app/layer/python
 
-!layer/python/requirements.txt
+!refget-app/layer/python/requirements.txt
