@@ -36,6 +36,7 @@ sam local invoke HelloWorldFunction --event event.json
 **Invoking function locally through local API Gateway**
 
 ```bash
+sam build
 sam local start-api
 ```
 

@@ -1,3 +1,4 @@
+# only run when refget-serverless virtual environment is active
 cd layer
 pip freeze > python/requirements.txt
 pip install --upgrade -r python/requirements.txt -t python
