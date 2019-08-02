@@ -15,3 +15,21 @@ class StatusCodes(object):
     NOT_ACCEPTABLE = 406
     REQUESTED_RANGE_NOT_SATISFIABLE = 416
     NOT_IMPLEMENTED = 501
+
+    def is_successful_code(status_code):
+        """Checks whether a status code is one of several successful codes
+
+        Arguments:
+            status_code (int): status code to check
+        
+        Returns:
+            (bool): True if code is in successful code set, otherwise False
+        """
+
+        success_set = set([
+            StatusCodes.OK,
+            StatusCodes.PARTIAL_CONTENT
+        ])
+
+        return status_code in success_set
+

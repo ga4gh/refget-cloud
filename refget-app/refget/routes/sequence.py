@@ -56,12 +56,18 @@ def get_sequence(event, context):
                                          # handle parsing subsequence here
 
             s3_response = requests.get(url)
-            seq = s3_response.text
-            start_idx = int(start) if start else 0
-            end_idx = int(end) if end else len(seq)
-            seq = seq[start_idx:end_idx]
-            resp.put_header("Content-Length", len(seq))
-            resp.set_body(seq)
+            # if s3 resource was successfully retrieved, continue to
+            # subsequence, otherwise redirect client to s3 url
+            if SC.is_successful_code(s3_response.status_code):
+                seq = s3_response.text
+                start_idx = int(start) if start else 0
+                end_idx = int(end) if end else len(seq)
+                seq = seq[start_idx:end_idx]
+                resp.put_header("Content-Length", len(seq))
+                resp.set_body(seq)
+
+            else:
+                resp.set_redirect_found(url)
                 
         return resp
     
