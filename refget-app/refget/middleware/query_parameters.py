@@ -1,43 +1,118 @@
+"""Module middleware.query_parameters.py
+Middleware, checks that query parameters/headers are set correctly
+"""
+
 import json
 import re
+import requests
 from config.constants import *
-from config.sequences import *
+from cls.http.status_codes import StatusCodes as SC
 
 class QueryParametersMW(object):
+    """Middleware, checks request for appropriate query parameters
+
+    QueryParametersMW checks "start" and/or "end" query parameters, or the
+    "Range" header, which all deal with requesting subsequences. If any of 
+    these request parameters/headers are malformed, it sets the response status
+    code to an appropriate error code
+    """
 
     @staticmethod
-    def middleware_func(event, partial_response):
+    def middleware_func(event, resp):
+        """core middleware function, checks subsequence params/header
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): response object to modify
+        """
         
+        # a series of functions to perform on the request, if any subseq
+        # params have been provided 
         checkfuncs = [
+            QueryParametersMW._QueryParametersMW__get_subseq_coords,
             QueryParametersMW._QueryParametersMW__check_datatype,
             QueryParametersMW._QueryParametersMW__check_datarange,
             QueryParametersMW._QueryParametersMW__check_noncircular
         ]
-        start, end, subseq_type = [None, None, None]
 
-        e, r = event, partial_response
-        r = QueryParametersMW._QueryParametersMW__check_supplied_params(e, r)
+        # the response data dict is annotated with 3 parameters:
+        # 1. start: indicating subseq start
+        # 2. end: indicating subseq end
+        # 3. subseq-type: indicating whether the subsequence was specified via
+        #                 start/end query parameters, or via the Range header
 
-        if r["statusCode"] == 200 and r["data"]["subseq-type"] != "none":
-            res = QueryParametersMW._QueryParametersMW__get_subseq_coords(e, r)
-            start, end, subseq_type = res
+        # initially, set all to None in case no subsequence requested
+        resp.update_data({"start": None, "end": None, "subseq-type": None})
 
+        # check how subsequence parameters have been specified, if at all
+        QueryParametersMW._QueryParametersMW__check_supplied_params(event, resp)
+
+        # if subseq parameters have been specified (and are so far OK), iterate
+        # through the various check functions, modifying response as necessary 
+        if resp.get_status_code() == SC.OK and resp.get_datum("subseq-type"):
             for checkfunc in checkfuncs:
-                if r["statusCode"] == 200:
-                    r = checkfunc(e, r, start, end, subseq_type)
-            
-        r["data"]["start"] = start
-        r["data"]["end"] = end
-        r["data"]["subseq_type"] = subseq_type
-
-        return r
+                if resp.get_status_code() == SC.OK:
+                    checkfunc(event, resp)
     
     @staticmethod
-    def __get_subseq_coords(event, partial_response):
+    def __check_supplied_params(event, resp):
+        """check if subsequence parameters are supplied and specified correctly
+
+        Updates the response data dictionary with start/end positions, and the
+        subseq-type. ONLY ONE of start/end query params and Range header can
+        be supplied. If BOTH subseq methods are provided, response is modified
+        to indicate this is a BAD REQUEST
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): Response object
+        """
+
+        use_start_end = False
+        use_range = False
+
+        # check if start/end was provided in the request, 
+        # indicate subseq-type is 'start-end' in response data dict
+        if event['queryStringParameters']:
+            params = event['queryStringParameters']
+            if "start" in params.keys() or "end" in params.keys():
+                use_start_end = True
+                resp.put_data("subseq-type", "start-end")
+        
+        # check if Range header was provided in the request,
+        # indicate subseq-type is 'Range' in response data dict
+        if "Range" in event['headers']:
+            use_range = True
+            resp.put_data("subseq-type", "range")
+        
+        # if both start/end and AND Range header, this is a BAD REQUEST
+        if use_start_end and use_range:
+            resp.set_status_code(SC.BAD_REQUEST)
+            resp.set_body(json.dumps({
+                "message": "Cannot provide both sequence start/end AND Range"
+            }))
+    
+    
+    @staticmethod
+    def __get_subseq_coords(event, resp):
+        """parse start/end bases according to subsequence specification format
+
+        Sets 'start' and 'end' bases in data dictionary, based on how the
+        subsequence was provided ('range' or 'start-end'). If the Range header
+        does not follow the expected format, this is a BAD REQUEST
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): Response object
+        """
+
         start = None
         end = None
 
-        subseq_type = partial_response["data"]["subseq-type"]
+        # if subseq-type is 'start-end', then set base start and end according
+        # to values of query parameters (if either start or end is not 
+        # specified, then keep that value as None)
+        subseq_type = resp.get_datum("subseq-type")
         if subseq_type == "start-end":
             if event['queryStringParameters']:
                 params = event['queryStringParameters']
@@ -46,6 +121,9 @@ class QueryParametersMW(object):
                 if "end" in params.keys():
                     end = params["end"]
 
+        # if subseq-type is 'range', then set base start and end according to
+        # values in Range header. If Range header does not match expected 
+        # format/regex, this is a BAD REQUEST
         elif subseq_type == "range":
             range_header = event["headers"]["Range"]
             range_pattern = re.compile("bytes=(\d+)-(\d+)")
@@ -54,40 +132,36 @@ class QueryParametersMW(object):
                 start = range_match.group(1)
                 end = range_match.group(2)
             else:
-                partial_response["statusCode"] = 400
-                partial_response["body"] = json.dumps({
+                resp.set_status_code(SC.BAD_REQUEST)
+                resp.set_body(json.dumps({
                     "message": "Invalid 'Range' header"
-                })
+                }))
+        
+        # update the response data dictionary
+        resp.update_data({"start": start, "end": end})
+
+    def __check_datatype(event, resp):
+        """checks the start/end parameters are valid positive integers
+
+        If either start or end base provided by request are not integers, this
+        is a BAD REQUEST 
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): Response object
+        """
+
+        def unsigned_int_check(val):
+            """checks if something is a positive (unsigned) integer
+
+            Arguments:
+                val (object): value to check
+
+            Returns:
+                (bool): True if val is an integer, otherwise False
             
-        return [start, end, subseq_type]
+            """
 
-    @staticmethod
-    def __check_supplied_params(event, partial_response):
-        use_start_end = False
-        use_range = False
-        partial_response["data"]["subseq-type"] = "none"
-
-        if event['queryStringParameters']:
-            params = event['queryStringParameters']
-            if "start" in params.keys() or "end" in params.keys():
-                use_start_end = True
-                partial_response["data"]["subseq-type"] = "start-end"
-        
-        if "Range" in event['headers']:
-            use_range = True
-            partial_response["data"]["subseq-type"] = "range"
-        
-        if use_start_end and use_range:
-            partial_response["statusCode"] = 400
-            partial_response["body"] = json.dumps({
-                "message": "Cannot provide both sequence start/end AND Range"
-            })
-        
-        return partial_response
-    
-    def __check_datatype(event, partial_response, start, end, subseq_type):
-
-        def number_check(val):
             is_valid_number = True
             try:
                 val = int(val)
@@ -98,74 +172,144 @@ class QueryParametersMW(object):
             
             return is_valid_number
         
-        vals = [start, end]
+        # for start and end base, if not None, perform the number check
+        # if either is not an unsigned int, this is a BAD REQUEST
+        vals = [resp.get_datum("start"), resp.get_datum("end")]
         for val in vals:
             if val:
-                if not number_check(val):
-                    partial_response["statusCode"] = 400
-                    partial_response["body"] = json.dumps({
+                if not unsigned_int_check(val):
+                    resp.set_status_code(SC.BAD_REQUEST)
+                    resp.set_body(json.dumps({
                         "message": "start/end must be unsigned int"
-                    })
-            
-        return partial_response
+                    }))
     
-    def __check_datarange(event, partial_response, start, end, subseq_type):
+    def __check_datarange(event, resp):
+        """check that start/end bases fall within accepted range
 
-        seq_length = METADATA[partial_response["data"]["trunc512_id"]]["length"]
+        start/end accepted range is slightly different based on whether subseq
+        was request by query parameters or Range header. If the requested subseq
+        violates constraints then the response status code will be set to
+        REQUESTED RANGE NOT SATIFIABLE
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): Response object
+        """
+
+        # get sequence length from metadata object stored on S3
+        seqid = event['pathParameters']['id']
+        metadata_url = S3_METADATA_URL + seqid + ".json"
+        metadata_json = requests.get(metadata_url).json()
+        seq_length = int(metadata_json["metadata"]["length"])
+
+        # perform range checking on both start (if specified) 
+        # and end (if specified)
         keys = ["start", "end"]
-        val_dict = {"start": start, "end": end}
-        # comparator function by:
-        # end inclusivity (True/False)
-        # Value for range start or end
+        val_dict = {"start": resp.get_datum("start"), 
+                    "end": resp.get_datum("end")}
+        
+        # comparator functions by subseq-type and whether it is start or end
+        # base. for each comparator function, if True is returned, then that
+        # parameter violates the acceptable range, and response status code
+        # set to REQUEST RANGE NOT SATISFIABLE
         comparator_dict = {
-            "range": {
+            "range": { # if subseq specified by 'Range' header, then
                 "start": lambda val, seqlen: int(val) >= seqlen,
+                    # start base MUST be LESS THAN sequence length
                 "end": lambda val, seqlen: False
+                    # any end base is acceptable
             },
-            "start-end": {
+            "start-end": { # if subseq specified by start/end parameters, then
                 "start": lambda val, seqlen: int(val) >= seqlen,
+                    # start base MUST be LESS THAN sequence length
                 "end": lambda val, seqlen: int(val) > seqlen
+                    # end base MUST be LESS THAN OR EQUAL TO sequence length
             }
         }
-        
+
+        subseq_type = resp.get_datum("subseq-type")
         for key in keys:
             val = val_dict[key]
             if val:
                 comparator_func = comparator_dict[subseq_type][key]
                 if comparator_func(val, seq_length):
-                    partial_response["statusCode"] = 416
-                    partial_response["body"] = json.dumps({
+                    resp.set_status_code(SC.REQUESTED_RANGE_NOT_SATISFIABLE)
+                    resp.set_body(json.dumps({
                         "message": "Invalid sequence range provided"
-                    })
-            
-        return partial_response
+                    }))
     
-    def __check_noncircular(event, partial_response, start, end, subseq_type):
+    def __check_noncircular(event, resp):
+        """check requested subsequence is not circular
+
+        circular sequence requests are not currently supported on this server.
+        if the start base is higher than the end base, this will give the 
+        response an error status code (exact code based on subeq specification
+        type)
+
+        Arguments:
+            event (dict): AWS event/request
+            resp (Response): Response object
+        """
 
         # the status code to return based on whether the subsequence was 
-        # specified by start/end , or by range header
-        status_codes = {"range": 416, "start-end": 501}
+        # specified by start/end, or by range header
+        status_codes = {"range": SC.REQUESTED_RANGE_NOT_SATISFIABLE,
+                        "start-end": SC.NOT_IMPLEMENTED}
+
+        start, end, subseq_type = \
+            [resp.get_datum(a) for a in ["start", "end", "subseq-type"]]
         
+        # if request start is greater than end, set the response status code
+        # to an error code
         if start and end:
             if int(start) > int(end):
-                partial_response["statusCode"] = status_codes[subseq_type]
-                partial_response["body"] = json.dumps({
+                resp.set_status_code(status_codes[subseq_type])
+                resp.set_body(json.dumps({
                     "message": "server DOES NOT support circular " +
                                 "sequences, end MUST be higher than start"
-                })
-        return partial_response
+                }))
 
 def QueryParametersMidware(event, context):
+    """Creates the query parameter middleware decorator function
+
+    Arguments:
+        event (dict): AWS event/request with closure in middleware chain
+        content (dict): AWS context with closure in middleware chain
+    
+    Returns:
+        (function): query parameter middleware decorator function
+    """
 
     def decorator_function(func):
-        def wrapper(partial_response):
+        """Decorator: performs query parameter checking and passes response
 
-            midware_response = QueryParametersMW.middleware_func(event, 
-                partial_response)
-            if midware_response["statusCode"] == 200:
-                return func(midware_response)
+        Arguments:
+            func (function): inner function that takes the response
+
+        Returns:
+            (function): wrapped function
+        """
+
+        def wrapper(resp):
+            """Inner function: performs media type checking and passes response
+
+            Arguments:
+                resp (Response): Response object
+            
+            Returns:
+                (Response): Response object, modified by query parameter midware
+            """
+
+            # perform query param middleware function, which modifies the 
+            # response status code/headers/body as necessary
+            # if status code is still OK at end of function, then execute the
+            # inner function
+            QueryParametersMW.middleware_func(event, resp)
+            if resp.get_status_code() == SC.OK:
+                return func(resp)
             else:
-                return midware_response
+                return resp
+            
         return wrapper
 
     return decorator_function

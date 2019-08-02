@@ -1,68 +1,131 @@
+"""Module routes.sequence.py
+Lambda functions associated with '/sequence/' API routes 
+"""
+
 import json
 import requests
-from config.sequences import *
+from cls.http.status_codes import StatusCodes as SC
 from config.constants import *
 from config.service_info import *
-from middleware.functions import *
 from middleware.media_type import MediaTypeMidware
 from middleware.query_parameters import QueryParametersMidware
-from middleware.sequence_id import SequenceIdMidware
 from middleware.start import StartMidware
 
 def get_sequence(event, context):
+    """'/sequence/:id' route function, get a sequence/subsequence by its id
+
+    Arguments:
+        event (dict): AWS event/request
+        context (dict): AWS context
+    
+    Returns:
+        (dict): finalized response according to AWS SAM expected format
+    """
 
     @StartMidware(event, context)
     @MediaTypeMidware(event, context, 
                       supported_media_types=[DEFAULT_CONTENT_TYPE_TEXT])
-    @SequenceIdMidware(event, context)
     @QueryParametersMidware(event, context)
-    def worker(partial_response):
+    def worker(resp):
+        """post-middleware inner function, get a sequence/subsequence by id
 
-        response = partial_response
-        d = response["data"]
-        trunc512_id, start, end, subseq_type = \
-            d["trunc512_id"], d["start"], d["end"], d["subseq_type"]
+        Arguments:
+            resp (Response): Response object
         
-        uri = S3_BASE_URL + trunc512_id
-        s3_response = requests.get(uri)
-        seq = s3_response.text
-        
-        start_idx = int(start) if start else 0
-        end_idx = int(end) if end else len(seq)
-        end_idx = end_idx + 1 if subseq_type == "range" else end_idx
-        seq = seq[start_idx:end_idx]
-        
-        if subseq_type == "range":
-            response["statusCode"] = 206
-        response["headers"]["Content-Length"] = len(seq)
-        response["body"] = seq
+        Returns:
+            (Response): Response containing sequence/subsequence in body
+        """
+
+        # get start, end subsequence positions from middleware,
+        # as well as if subsequence was requested by start/end or by Range
+        start, end, subseq_type = [resp.get_datum(a) for a \
+                                   in ["start", "end", "subseq-type"]]
+
+        # get sequence id from request and prepare S3 URL    
+        seqid = event['pathParameters']['id']
+        url = S3_SEQUENCE_URL + seqid
+
+        # if the full sequence has been requested OR subequence has been 
+        # specified by 'Range' header, then redirect client to s3 bucket
+        # (s3 bucket can handle partial content response)
+        if subseq_type == None or subseq_type == "range": 
+            resp.set_redirect_found(url)
+
+        elif subseq_type == "start-end": # if subsequence has been specified by
+                                         # start/end query parameters, then
+                                         # handle parsing subsequence here
+
+            s3_response = requests.get(url)
+            seq = s3_response.text
+            start_idx = int(start) if start else 0
+            end_idx = int(end) if end else len(seq)
+            seq = seq[start_idx:end_idx]
+            resp.put_header("Content-Length", len(seq))
+            resp.set_body(seq)
                 
-        return response
-
-    return finalize_response(worker())
+        return resp
+    
+    return worker().finalize()
 
 def get_metadata(event, context):
+    """'/sequence/:id/metadata' route function, get sequence metadata by id
+
+    Arguments:
+        event (dict): AWS event/request
+        context (dict): AWS context
+    
+    Returns:
+        (dict): finalized response according to AWS SAM expected format
+    """
 
     @StartMidware(event, context)
     @MediaTypeMidware(event, context)
-    @SequenceIdMidware(event, context)
-    def worker(partial_response):
+    def worker(resp):
+        """post-middleware inner function, get sequence metadata by its id
+
+        Arguments:
+            resp (Response): Response object
+
+        Returns:
+            (Response): Response containing sequence metadata in body
+        """
+
+        # form url to S3 metadata object based on sequence id in the request,
+        # and set the response to redirect to the S3 url
+        seqid = event['pathParameters']['id']
+        url = S3_METADATA_URL + seqid + ".json"
+        resp.set_redirect_found(url)
         
-        response = partial_response
-        trunc512_id = response["data"]["trunc512_id"]
-        response["body"] = json.dumps({"metadata": METADATA[trunc512_id]})
-        
-        return response
-    return finalize_response(worker())
+        return resp
+
+    return worker().finalize()
 
 def get_service_info(event, context):
+    """'/sequence/service-info' route function, get service info
+
+    Arguments:
+        event (dict): AWS event/request
+        context (dict): AWS context
+    
+    Returns:
+        (dict): finalized response according to AWS SAM expected format
+    """
     
     @StartMidware(event, context)
     @MediaTypeMidware(event, context)
-    def worker(partial_response):
-        response = partial_response
-        response["body"] = json.dumps({
+    def worker(resp):
+        """post-middleware inner function, get service info
+
+        Arguments:
+            resp (Response): Response object
+        
+        Returns:
+            (Response): Response containing service info in body
+        """
+
+        resp.set_body(json.dumps({
             "service": SERVICE_INFO
-        })
-        return response
-    return finalize_response(worker())
+        }))
+        return resp
+
+    return worker().finalize()
