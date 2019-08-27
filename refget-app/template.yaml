@@ -2,14 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   refget-serverless
-
   AWS Serverless implementation of GA4GH Refget service
-
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
-
 Resources:
   GetServiceInfoFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -63,34 +60,6 @@ Resources:
         - python3.7
       LicenseInfo: 'Available under the MIT-0 license.'
       RetentionPolicy: Retain
-  
-  ChecksumsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Checksums
-      AttributeDefinitions:
-        - AttributeName: checksum
-          AttributeType: S
-      KeySchema:
-        - AttributeName: checksum
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-  SequencesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Sequences
-      AttributeDefinitions:
-        - AttributeName: seqid
-          AttributeType: S
-      KeySchema:
-        - AttributeName: seqid
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1   
-  
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -116,9 +85,3 @@ Outputs:
   RefgetIamRole:
     Description: "Implicit IAM Role created for Refget functions"
     Value: !GetAtt GetServiceInfoFunctionRole.Arn
-  ChecksumsTable:
-    Description: "Sequence checksum map DynamoDB Table"
-    Value: !GetAtt ChecksumsTable.Arn
-  SequencesTable:
-    Description: "Sequence metadata DynamoDB Table"
-    Value: !GetAtt SequencesTable.Arn

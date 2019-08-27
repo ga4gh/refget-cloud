@@ -196,47 +196,59 @@ class QueryParametersMW(object):
             resp (Response): Response object
         """
 
-        # get sequence length from metadata object stored on S3
-        seqid = event['pathParameters']['id']
-        metadata_url = S3_METADATA_URL + seqid + ".json"
-        metadata_json = requests.get(metadata_url).json()
-        seq_length = int(metadata_json["metadata"]["length"])
+        try:
+            # get sequence length from metadata object stored on S3
+            seqid = event['pathParameters']['id']
+            metadata_url = S3_METADATA_URL + seqid + ".json"
+            metadata_response = requests.get(metadata_url)
+            if not SC.is_successful_code(metadata_response.status_code):
+                resp.set_status_code(metadata_response.status_code)
+                resp.set_body(json.dumps({
+                    "message": "sequence %s not found" % seqid
+                }))
+                raise Exception("Metadata for object not found")
 
-        # perform range checking on both start (if specified) 
-        # and end (if specified)
-        keys = ["start", "end"]
-        val_dict = {"start": resp.get_datum("start"), 
-                    "end": resp.get_datum("end")}
-        
-        # comparator functions by subseq-type and whether it is start or end
-        # base. for each comparator function, if True is returned, then that
-        # parameter violates the acceptable range, and response status code
-        # set to REQUEST RANGE NOT SATISFIABLE
-        comparator_dict = {
-            "range": { # if subseq specified by 'Range' header, then
-                "start": lambda val, seqlen: int(val) >= seqlen,
-                    # start base MUST be LESS THAN sequence length
-                "end": lambda val, seqlen: False
-                    # any end base is acceptable
-            },
-            "start-end": { # if subseq specified by start/end parameters, then
-                "start": lambda val, seqlen: int(val) >= seqlen,
-                    # start base MUST be LESS THAN sequence length
-                "end": lambda val, seqlen: int(val) > seqlen
-                    # end base MUST be LESS THAN OR EQUAL TO sequence length
+            metadata_json = metadata_response.json()
+            seq_length = int(metadata_json["metadata"]["length"])
+
+            # perform range checking on both start (if specified) 
+            # and end (if specified)
+            keys = ["start", "end"]
+            val_dict = {"start": resp.get_datum("start"), 
+                        "end": resp.get_datum("end")}
+            
+            # comparator functions by subseq-type and whether it is start or end
+            # base. for each comparator function, if True is returned, then that
+            # parameter violates the acceptable range, and response status code
+            # set to REQUEST RANGE NOT SATISFIABLE
+            comparator_dict = {
+                "range": { # if subseq specified by 'Range' header, then
+                    "start": lambda val, seqlen: int(val) >= seqlen,
+                        # start base MUST be LESS THAN sequence length
+                    "end": lambda val, seqlen: False
+                        # any end base is acceptable
+                },
+                "start-end": { # if subseq specified by start/end parameters, 
+                               # then
+                    "start": lambda val, seqlen: int(val) >= seqlen,
+                        # start base MUST be LESS THAN sequence length
+                    "end": lambda val, seqlen: int(val) > seqlen
+                        # end base MUST be LESS THAN OR EQUAL TO sequence length
+                }
             }
-        }
 
-        subseq_type = resp.get_datum("subseq-type")
-        for key in keys:
-            val = val_dict[key]
-            if val:
-                comparator_func = comparator_dict[subseq_type][key]
-                if comparator_func(val, seq_length):
-                    resp.set_status_code(SC.REQUESTED_RANGE_NOT_SATISFIABLE)
-                    resp.set_body(json.dumps({
-                        "message": "Invalid sequence range provided"
-                    }))
+            subseq_type = resp.get_datum("subseq-type")
+            for key in keys:
+                val = val_dict[key]
+                if val:
+                    comparator_func = comparator_dict[subseq_type][key]
+                    if comparator_func(val, seq_length):
+                        resp.set_status_code(SC.REQUESTED_RANGE_NOT_SATISFIABLE)
+                        resp.set_body(json.dumps({
+                            "message": "Invalid sequence range provided"
+                        }))
+        except Exception as e:
+            pass
     
     def __check_noncircular(event, resp):
         """check requested subsequence is not circular
