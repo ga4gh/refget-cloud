@@ -6,7 +6,8 @@ install:
   - python -m pip install -r requirements_test.txt
 before_script:
   - export PYTHONPATH=refget-app/refget:$PYTHONPATH
+  - export PYTHONPATH=refget-app/unittests:$PYTHONPATH
 script:
-  - pytest --cov=refget-app/refget/ --cov-report=term-missing refget-app/tests/unit/pytest/
+  - pytest --cov=refget-app/refget/ --cov-report=term-missing refget-app/unittests/test_refget/
 after_success:
   - coveralls

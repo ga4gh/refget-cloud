@@ -1,6 +1,7 @@
 __pycache__
 .coverage
 .env
+.vscode
 packaged.yaml
 
 *.zip
