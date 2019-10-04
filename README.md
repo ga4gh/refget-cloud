@@ -57,12 +57,16 @@ curl -L https://cl9lba3no5.execute-api.us-east-2.amazonaws.com/Prod/sequence/ser
 
 ## S3 Object Redirection
 
+As sequences are retrieved by either their `TRUNC512` or `MD5` checksum digests, there must be a way to access the correct sequence by either ID. This has been achieved using only S3 object properties, without needing to duplicate data, and without the need for a database keeping track of the mapping between `MD5 <--> TRUNC512`.
+
+The diagram below shows that raw sequences are stored in s3 objects, with filenames matching the `TRUNC512` id. If a client requests a sequence by `TRUNC512`, the corresponding file contents are retrieved.
+
+Within the bucket, there also exists an empty file/object, with filename matching the sequence `MD5` id. This empty file has an s3 header, `Website-Redirect-Location`, with a value mapping it back to the `TRUNC512` file.
+
 ![Redirection](public/images/s3_redirection.png)
-
-
 
 ## Serverless Architecture
 
-![Architecture](public/images/serverless_architecture.png)
+The AWS Serverless Application Model (SAM) allows us to easily map API routes to lambda functions that handle the client's request, without needing to directly manage server infrastructure. A common library initially handles the user's request to ensure the service conforms to the refget specification. If the HTTP request is valid (correct headers, query string parameters), the service can redirect the client to the correct s3 object with minimal preprocessing.
 
-# Contact
+![Architecture](public/images/serverless_architecture.png)
