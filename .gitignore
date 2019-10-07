@@ -3,9 +3,7 @@ __pycache__
 .env
 .vscode
 packaged.yaml
-
 *.zip
-
 sam/layer/python/*
 !sam/layer/python/requirements.txt
-!sam/lib
+!sam/lib/*
