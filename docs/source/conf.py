@@ -29,7 +29,6 @@ author = 'Jeremy Adams, Andy Yates'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.graphviz',
     'sphinx.ext.inheritance_diagram',
     'autoapi.sphinx'
 ]
