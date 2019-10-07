@@ -1,0 +1,29 @@
+:mod:`ga4gh.refget.serverless.middleware.start`
+===============================================
+
+.. py:module:: ga4gh.refget.serverless.middleware.start
+
+.. autoapi-nested-parse::
+
+   Start of middleware, creates an initial response object
+
+   The start middleware function creates an initial response object and passes it
+   to subsequent middleware functions and/or api route worker function
+
+
+
+Module Contents
+---------------
+
+.. function:: StartMidware(event, context)
+
+   Creates the start middleware decorator function
+
+   :param event: AWS SAM event (incl. headers, path params, query params)
+   :type event: dict[str, object]
+   :param context: AWS SAM context
+   :type context: dict[str, str]
+   :return: higher order decorator function
+   :rtype: function
+
+

@@ -1,0 +1,16 @@
+:mod:`ga4gh.refget.serverless.config`
+=====================================
+
+.. py:module:: ga4gh.refget.serverless.config
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   constants/index.rst
+   service_info/index.rst
+
+

@@ -1,0 +1,15 @@
+:mod:`ga4gh.refget.serverless.cls`
+==================================
+
+.. py:module:: ga4gh.refget.serverless.cls
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   http/index.rst
+
+

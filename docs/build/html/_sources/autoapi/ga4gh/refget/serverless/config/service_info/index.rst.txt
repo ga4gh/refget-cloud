@@ -1,0 +1,19 @@
+:mod:`ga4gh.refget.serverless.config.service_info`
+==================================================
+
+.. py:module:: ga4gh.refget.serverless.config.service_info
+
+.. autoapi-nested-parse::
+
+   Information about the refget service
+
+
+
+Module Contents
+---------------
+
+.. data:: SERVICE_INFO
+   
+
+   
+

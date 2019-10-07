@@ -1,0 +1,50 @@
+:mod:`ga4gh.refget.serverless.routes.sequence`
+==============================================
+
+.. py:module:: ga4gh.refget.serverless.routes.sequence
+
+.. autoapi-nested-parse::
+
+   Lambda functions associated with '/sequence/' API routes
+
+
+
+Module Contents
+---------------
+
+.. function:: get_sequence(event, context)
+
+   '/sequence/:id' route function, get a sequence/subsequence by its id
+
+   :param event: AWS SAM event (incl. headers, path params, query params)
+   :type event: dict[str, object]
+   :param context: AWS SAM context
+   :type context: dict[str, str]
+   :return: AWS SAM-formatted response
+   :rtype: dict[str, object]
+
+
+.. function:: get_metadata(event, context)
+
+   '/sequence/:id/metadata' route function, get sequence metadata by id
+
+   :param event: AWS SAM event (incl. headers, path params, query params)
+   :type event: dict[str, object]
+   :param context: AWS SAM context
+   :type context: dict[str, str]
+   :return: AWS SAM-formatted response
+   :rtype: dict[str, object]
+
+
+.. function:: get_service_info(event, context)
+
+   '/sequence/service-info' route function, get service info
+
+   :param event: AWS SAM event (incl. headers, path params, query params)
+   :type event: dict[str, object]
+   :param context: AWS SAM context
+   :type context: dict[str, str]
+   :return: AWS SAM-formatted response
+   :rtype: dict[str, object]
+
+

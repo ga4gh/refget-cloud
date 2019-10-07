@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ga4gh.refget.serverless.cls.http.response &mdash; Refget Serverless  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../../../" src="../../../../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../../../_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../../../index.html" class="icon icon-home"> Refget Serverless
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">Refget Serverless</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../../../index.html">Docs</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">ga4gh.refget.serverless.cls.http.response</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../../../../../_sources/autoapi/ga4gh/refget/serverless/cls/http/response/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-ga4gh.refget.serverless.cls.http.response">
+<span id="ga4gh-refget-serverless-cls-http-response"></span><h1><a class="reference internal" href="#module-ga4gh.refget.serverless.cls.http.response" title="ga4gh.refget.serverless.cls.http.response"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ga4gh.refget.serverless.cls.http.response</span></code></a><a class="headerlink" href="#module-ga4gh.refget.serverless.cls.http.response" title="Permalink to this headline">¶</a></h1>
+<p><p>Defines the Response class, which can be modified to modulate the http
+response sent back to the client. Response is formatted according to expected
+AWS SAM format.</p>
+</p>
+<div class="section" id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response">
+<em class="property">class </em><code class="sig-prename descclassname">ga4gh.refget.serverless.cls.http.response.</code><code class="sig-name descname">Response</code><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>an HTTP response, sends back appropriate response to client</p>
+<p>For each web api route, a Response object is created and modified through
+a chain of middleware checks. If, at the end of a middleware function, the
+response status code is OK (200), the next function will execute. If ever
+the status code is modified to an error, the response will be sent back to
+client without executing further processing steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status_code</strong> (<em>int</em>) – response status code</p></li>
+<li><p><strong>headers</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – http headers</p></li>
+<li><p><strong>body</strong> (<em>str</em>) – response body</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – data dict accessible throughout all middleware functions</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format response according to AWS lambda/API Gateway expected format</p>
+<p>For each API route declared in an AWS SAM stack, the response must be
+sent back as a dict with the appropriate keys and data structures. This
+method formats the response object according to that format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>response information formatted according to AWS SAM</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.set_body">
+<code class="sig-name descname">set_body</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">body</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.set_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>set response body</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>body</strong> (<em>str</em>) – string to set to response body</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_body">
+<code class="sig-name descname">get_body</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>get response body</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>response body</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.set_status_code">
+<code class="sig-name descname">set_status_code</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">status_code</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.set_status_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>set status code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>status_code</strong> (<em>int</em>) – int to set to status code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_status_code">
+<code class="sig-name descname">get_status_code</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_status_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>get status code</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>response status code</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.put_header">
+<code class="sig-name descname">put_header</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.put_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>add or update a key-value pair to response headers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – header key/name</p></li>
+<li><p><strong>value</strong> (<em>str</em>) – value for this header</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.update_headers">
+<code class="sig-name descname">update_headers</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">new_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.update_headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>add or update multiple header keys and values</p>
+<p>This method accepts a dictionary of new headers, and will update the
+existing header dictionary with the new keys and values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_dict</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – dictionary to update headers with</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_header">
+<code class="sig-name descname">get_header</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the value of a particular header</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – header key/name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>value of specified header</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_headers">
+<code class="sig-name descname">get_headers</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>get complete header dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>header dictionary</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.put_data">
+<code class="sig-name descname">put_data</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.put_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>add or update a key-value pair to data dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – data key/name</p></li>
+<li><p><strong>value</strong> (<em>str</em>) – value to store under key</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.update_data">
+<code class="sig-name descname">update_data</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">new_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>add or update multiple keys and values to data dictionary</p>
+<p>This method accepts a dictionary of new data, and will update the
+existing data dictionary with the new keys and values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_dict</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – dictionary to update data dictionary with</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_datum">
+<code class="sig-name descname">get_datum</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_datum" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the value under the specified key in data dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – data key/name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>value under specified key in data dictionary</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.get_data">
+<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>get complete data dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>data dictionary</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ga4gh.refget.serverless.cls.http.response.Response.set_redirect_found">
+<code class="sig-name descname">set_redirect_found</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">url</em><span class="sig-paren">)</span><a class="headerlink" href="#ga4gh.refget.serverless.cls.http.response.Response.set_redirect_found" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the response to redirect client to specified url</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – redirect url</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Global Alliance for Genomics and Health
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

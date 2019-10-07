@@ -1,0 +1,74 @@
+:mod:`ga4gh.refget.serverless.cls.http.status_codes`
+====================================================
+
+.. py:module:: ga4gh.refget.serverless.cls.http.status_codes
+
+.. autoapi-nested-parse::
+
+   Defines the StatusCodes class, which references http status code
+   numbers by name
+
+
+
+Module Contents
+---------------
+
+.. py:class:: StatusCodes
+
+   Bases: :class:`object`
+
+   References http status code numbers by name
+
+   .. attribute:: OK
+      :annotation: = 200
+
+      
+
+   .. attribute:: PARTIAL_CONTENT
+      :annotation: = 206
+
+      
+
+   .. attribute:: REDIRECT_FOUND
+      :annotation: = 302
+
+      
+
+   .. attribute:: BAD_REQUEST
+      :annotation: = 400
+
+      
+
+   .. attribute:: NOT_FOUND
+      :annotation: = 404
+
+      
+
+   .. attribute:: NOT_ACCEPTABLE
+      :annotation: = 406
+
+      
+
+   .. attribute:: REQUESTED_RANGE_NOT_SATISFIABLE
+      :annotation: = 416
+
+      
+
+   .. attribute:: NOT_IMPLEMENTED
+      :annotation: = 501
+
+      
+
+   .. method:: is_successful_code(status_code)
+      :staticmethod:
+
+
+      Checks whether a status code is one of several successful codes
+
+      :param status_code: status code to check
+      :type status_code: int
+      :return: True if code is in successful code set, otherwise False
+      :rtype: bool
+
+
+

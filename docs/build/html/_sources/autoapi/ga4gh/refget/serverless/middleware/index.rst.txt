@@ -1,0 +1,17 @@
+:mod:`ga4gh.refget.serverless.middleware`
+=========================================
+
+.. py:module:: ga4gh.refget.serverless.middleware
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   media_type/index.rst
+   query_parameters/index.rst
+   start/index.rst
+
+

@@ -1,0 +1,15 @@
+:mod:`ga4gh.refget.serverless.routes`
+=====================================
+
+.. py:module:: ga4gh.refget.serverless.routes
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   sequence/index.rst
+
+
