@@ -3,12 +3,13 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 [![Travis (.org) branch](https://img.shields.io/travis/ga4gh/refget-serverless/master.svg?style=flat-square)](https://travis-ci.org/ga4gh/refget-serverless)
 [![Coverage Status](https://img.shields.io/coveralls/github/ga4gh/refget-serverless.svg?style=flat-square)](https://coveralls.io/github/ga4gh/refget-serverless?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/refget-serverless/badge/?version=latest&style=flat-square)](https://refget-serverless.readthedocs.io/en/latest/?badge=latest)
 
 # Refget Serverless
 
 Refget Serverless is a serverless implementation of the [Refget API Specification v1.0.0](https://samtools.github.io/hts-specs/refget.html), developed by the [Global Alliance for Genomics and Health](https://www.ga4gh.org/). The refget web service runs on [AWS](https://aws.amazon.com/), and will serve reference sequences from the [International Nucleotide Sequence Database Collaboration (INSDC)](http://www.insdc.org/). Specifically, refget serverless will pull sequences from the INSDC AWS Public Dataset Mirror, in which sequences can be accessed according to their `TRUNC512` or `MD5` checksums.
 
-If you are interested in setting up your own serverless implementation of refget using a cloud-based object store, please feel free to review the [API documentation](https://refget-serverless.readthedocs.io/en/latest/)
+If you are interested in setting up your own serverless implementation of refget using a cloud-based object store, please feel free to review the [API documentation](https://refget-serverless.readthedocs.io/en/latest/).
 
 # Usage
 

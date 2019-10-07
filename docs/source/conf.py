@@ -29,12 +29,10 @@ author = 'Jeremy Adams, Andy Yates'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.graphviz',
     'sphinx.ext.inheritance_diagram',
-    'autoapi.sphinx',
-    # 'autoapi.extension'
+    'autoapi.sphinx'
 ]
-# autoapi_type = 'python'
-# autoapi_dirs = [os.path.abspath('../../sam/lib')]
 autoapi_modules = {
     'ga4gh': {
         'output': 'auto'

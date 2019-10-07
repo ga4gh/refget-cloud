@@ -23,3 +23,7 @@ def StartMidware(event, context):
             return func(Response())
         return wrapper
     return decorator_function
+
+__all__ = [
+    'StartMidware'
+]

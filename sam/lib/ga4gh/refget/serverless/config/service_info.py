@@ -7,3 +7,8 @@ SERVICE_INFO = {
     "subsequence_limit": 300000,
     "supported_api_versions": ["1.0"]
 }
+"""Dictionary containing information about refget service"""
+
+__all__ = [
+    "SERVICE_INFO"
+]

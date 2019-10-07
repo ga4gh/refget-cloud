@@ -127,3 +127,8 @@ def MediaTypeMidware(event, context,
                 return resp
         return wrapper
     return decorator_function
+
+__all__ = [
+    "MediaTypeMW",
+    "MediaTypeMidware"
+]
