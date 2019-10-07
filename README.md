@@ -8,6 +8,8 @@
 
 Refget Serverless is a serverless implementation of the [Refget API Specification v1.0.0](https://samtools.github.io/hts-specs/refget.html), developed by the [Global Alliance for Genomics and Health](https://www.ga4gh.org/). The refget web service runs on [AWS](https://aws.amazon.com/), and will serve reference sequences from the [International Nucleotide Sequence Database Collaboration (INSDC)](http://www.insdc.org/). Specifically, refget serverless will pull sequences from the INSDC AWS Public Dataset Mirror, in which sequences can be accessed according to their `TRUNC512` or `MD5` checksums.
 
+If you are interested in setting up your own serverless implementation of refget using a cloud-based object store, please feel free to review the [API documentation](https://refget-serverless.readthedocs.io/en/latest/)
+
 # Usage
 
 The web service implements all API methods as described in the [Refget Specification](https://samtools.github.io/hts-specs/refget.html):

@@ -29,12 +29,17 @@ author = 'Jeremy Adams, Andy Yates'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'autoapi.extension',
-    'sphinx.ext.coverage',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.inheritance_diagram',
+    'autoapi.sphinx',
+    # 'autoapi.extension'
 ]
-autoapi_type = 'python'
-autoapi_dirs = [os.path.abspath('../../sam/lib')]
+# autoapi_type = 'python'
+# autoapi_dirs = [os.path.abspath('../../sam/lib')]
+autoapi_modules = {
+    'ga4gh': {
+        'output': 'auto'
+    }
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

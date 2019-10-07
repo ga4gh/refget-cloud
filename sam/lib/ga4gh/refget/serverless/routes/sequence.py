@@ -104,3 +104,9 @@ def get_service_info(event, context):
         return resp
 
     return worker().finalize()
+
+__all__ = [
+    'get_sequence',
+    'get_metadata',
+    'get_service_info'
+]

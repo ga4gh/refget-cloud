@@ -5,6 +5,8 @@ Refget Serverless
    :maxdepth: 2
    :caption: Contents:
 
+   auto/ga4gh
+
 Indices and tables
 ==================
 

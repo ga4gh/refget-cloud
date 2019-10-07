@@ -4,6 +4,8 @@ __pycache__
 .vscode
 packaged.yaml
 *.zip
+docs/build
+docs/source/auto
 sam/layer/python/*
 !sam/layer/python/requirements.txt
 !sam/lib/*
