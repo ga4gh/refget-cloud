@@ -1,11 +1,13 @@
 __pycache__
+*.zip
+*.egg-info
+.aws-sam
 .coverage
 .env
 .vscode
+build
+dist
 packaged.yaml
-*.zip
 docs/build
 docs/source/auto
-sam/layer/python/*
-!sam/layer/python/requirements.txt
-!sam/lib/*
+iac/aws/lambda/layer/python/*
