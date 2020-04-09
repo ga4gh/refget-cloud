@@ -1,7 +1,6 @@
 import requests
 from ga4gh.refget.http.status_codes import StatusCodes as SC
 from ga4gh.refget.http.response import Response
-from ga4gh.refget.middleware.start import StartMidware
 from ga4gh.refget.middleware.media_type import MediaTypeMidware
 from ga4gh.refget.middleware.query_parameters import QueryParametersMidware
 from ga4gh.refget.util.resolve_url import resolve_sequence_url

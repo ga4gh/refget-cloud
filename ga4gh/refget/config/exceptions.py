@@ -12,7 +12,7 @@ class RefgetException(Exception):
         return self.message
     
     def __str__(self):
-        return self.m
+        return self.message
 
 class RefgetInvalidPropertyException(RefgetException):
     

@@ -71,6 +71,8 @@ class QueryParametersMW(object):
         :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
         """
 
+        print("A")
+
         use_start_end = False
         use_range = False
 
@@ -114,6 +116,8 @@ class QueryParametersMW(object):
 
         start = None
         end = None
+
+        print("B")
 
         # if subseq-type is 'start-end', then set base start and end according
         # to values of query parameters (if either start or end is not 

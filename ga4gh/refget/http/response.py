@@ -168,7 +168,3 @@ class Response(object):
 
         self.set_status_code(SC.REDIRECT_FOUND)
         self.put_header("Location", url)
-
-__all__ = [
-    'Response'
-]

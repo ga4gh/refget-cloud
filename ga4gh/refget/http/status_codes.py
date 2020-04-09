@@ -42,7 +42,3 @@ class StatusCodes(object):
         ])
 
         return status_code in success_set
-
-__all__ = [
-    'StatusCodes'
-]
