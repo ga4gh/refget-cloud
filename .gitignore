@@ -11,3 +11,4 @@ packaged.yaml
 docs/build
 docs/source/auto
 iac/aws/lambda/layer/python/*
+private-parameters.json

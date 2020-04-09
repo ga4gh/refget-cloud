@@ -1,0 +1,172 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Refget Deployment using ECS and Fargate
+
+##################################################
+# Parameters
+##################################################
+
+Parameters:
+  Port:
+    Type: String
+    Default: 80
+  SubnetA:
+    Type: String
+  SubnetB:
+    Type: String
+  SubnetC:
+    Type: String
+  ECSTaskAddress:
+    Type: String
+  CertDomainName:
+    Type: String
+  ServiceDomainName:
+    Type: String
+
+Resources:
+
+  ##################################################
+  # AWS Elastic Container Service Resources
+  ##################################################
+
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Enable HTTP connection to FARGATE task
+        SecurityGroupIngress:
+            - IpProtocol: tcp
+              FromPort: !Ref Port
+              ToPort: !Ref Port
+              CidrIp: 0.0.0.0/0
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: refget-insdc
+
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !GetAtt ECSSecurityGroup.GroupId
+          Subnets:
+            - !Ref SubnetA
+            - !Ref SubnetB
+            - !Ref SubnetC
+      ServiceName: refget-insdc-service
+      TaskDefinition: !Ref ECSTaskDefinition
+
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ContainerDefinitions:
+        - Name: refget-insdc-container
+          Image: ga4gh/refget-cloud:0.1.1
+          Environment:
+            - Name: SERVER_PORT
+              Value: !Ref Port
+          PortMappings:
+            - ContainerPort: !Ref Port
+              HostPort: !Ref Port
+  
+  ##################################################
+  # AWS Certificate Manager Resources
+  ##################################################
+  
+  ApiCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref CertDomainName
+      ValidationMethod: DNS
+  
+  ##################################################
+  # AWS Api Gateway Resources
+  ##################################################
+
+  Api:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: refget-insdc
+      ProtocolType: HTTP
+
+  ApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref Api
+      AutoDeploy: true
+      StageName: prd
+  
+  ApiDomainName:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainName: !Ref ServiceDomainName
+      DomainNameConfigurations:
+        - CertificateArn: !Ref ApiCertificate
+  
+  ApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref Api
+      DomainName: !Ref ApiDomainName
+      Stage: !Ref ApiStage
+
+  ApiRouteServiceInfo:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: GET /sequence/service-info
+      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationServiceInfo]]
+
+  ApiRouteSequence:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: GET /sequence/{seqid}
+      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationSequence]]
+        
+  ApiRouteMetadata:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: GET /sequence/{seqid}/metadata
+      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationMetadata]]
+
+  ApiIntegrationServiceInfo:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      ConnectionType: INTERNET
+      IntegrationMethod: GET
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "service-info"]]
+      PayloadFormatVersion: 1.0
+  
+  ApiIntegrationSequence:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      ConnectionType: INTERNET
+      IntegrationMethod: GET
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "{seqid}"]]
+      PayloadFormatVersion: 1.0
+  
+  ApiIntegrationMetadata:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      ConnectionType: INTERNET
+      IntegrationMethod: GET
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "{seqid}", "metadata"]]
+      PayloadFormatVersion: 1.0
