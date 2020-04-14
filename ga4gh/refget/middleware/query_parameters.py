@@ -9,7 +9,7 @@ from ga4gh.refget.http.status_codes import StatusCodes as SC
 from ga4gh.refget.util.resolve_url import resolve_metadata_url
 
 class QueryParametersMW(object):
-    """Middleware, checks request for appropriate query parameters
+    """Middleware, checks request for correct and appropriate query parameters
 
     QueryParametersMW checks "start" and/or "end" query parameters, or the
     "Range" header, which all deal with requesting subsequences. If any of 
@@ -19,12 +19,12 @@ class QueryParametersMW(object):
 
     @staticmethod
     def middleware_func(properties, request, response):
-        """performs all subsequence param validation submethods
+        """Performs all subsequence param validations
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            response (Response): modifiable refget generic response
         """
         
         # a series of functions to perform on the request, if any subseq
@@ -58,20 +58,18 @@ class QueryParametersMW(object):
     
     @staticmethod
     def __check_supplied_params(properties, request, response):
-        """check if subsequence parameters are supplied and specified correctly
+        """Check if subsequence parameters are supplied and specified correctly
 
         Updates the response data dictionary with start/end positions, and the
         subseq-type. ONLY ONE of start/end query params and Range header can
         be supplied. If BOTH subseq methods are provided, response is modified
         to indicate this is a BAD REQUEST
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            response (Response): modifiable generic refget response
         """
-
-        print("A")
 
         use_start_end = False
         use_range = False
@@ -102,22 +100,20 @@ class QueryParametersMW(object):
     
     @staticmethod
     def __get_subseq_coords(properties, request, response):
-        """parse start/end bases according to subsequence specification format
+        """Parse start/end bases according to subsequence specification format
 
         Sets 'start' and 'end' bases in data dictionary, based on how the
         subsequence was provided ('range' or 'start-end'). If the Range header
         does not follow the expected format, this is a BAD REQUEST
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            response (Response): modifiable generic refget response
         """
 
         start = None
         end = None
-
-        print("B")
 
         # if subseq-type is 'start-end', then set base start and end according
         # to values of query parameters (if either start or end is not 
@@ -148,15 +144,15 @@ class QueryParametersMW(object):
     
     @staticmethod
     def __check_datatype(properties, request, response):
-        """checks the start/end parameters are valid positive integers
+        """Checks the start/end parameters are valid positive integers
 
         If either start or end base provided by request are not integers, this
-        is a BAD REQUEST 
+        is a BAD REQUEST
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            response (Response): modifiable generic refget response
         """
 
         def unsigned_int_check(val):
@@ -183,17 +179,17 @@ class QueryParametersMW(object):
     
     @staticmethod
     def __check_datarange(properties, request, response):
-        """check that start/end bases fall within accepted range
+        """Check that start/end bases fall within accepted range
 
-        start/end accepted range is slightly different based on whether subseq
+        Start/End accepted range is slightly different based on whether subseq
         was request by query parameters or Range header. If the requested subseq
         violates constraints then the response status code will be set to
         REQUESTED RANGE NOT SATIFIABLE
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            response (Response): modifiable generic refget response
         """
 
         try:
@@ -252,17 +248,17 @@ class QueryParametersMW(object):
     
     @staticmethod
     def __check_noncircular(properties, event, resp):
-        """check requested subsequence is not circular
+        """Check requested subsequence is not circular
 
-        circular sequence requests are not currently supported on this server.
+        Circular sequence requests are not currently supported on this server.
         if the start base is higher than the end base, this will give the 
         response an error status code (exact code based on subeq specification
         type)
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
+        Arguments:
+            properties (Properties): runtime properties
+            request (Request): generic refget request
+            resp (Response): modifiable generic refget response
         """
 
         # the status code to return based on whether the subsequence was 
@@ -286,12 +282,13 @@ class QueryParametersMW(object):
 def QueryParametersMidware(properties, request, response):
     """Creates the query parameter middleware decorator function
 
-    :param event: AWS SAM event (incl. headers, path params, query params)
-    :type event: dict[str, object]
-    :param context: AWS SAM context
-    :type context: dict[str, str]
-    :return: query parameters middleware decorator function
-    :rtype: function
+    Arguments:
+        properties (Properties): runtime properties
+        request (Request): generic refget request
+        response (Response): modifiable, generic refget response
+
+    Returns:
+        (function): query parameters middleware decorator function
     """
 
     def decorator_function(func):

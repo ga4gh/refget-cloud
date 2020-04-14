@@ -1,32 +1,27 @@
 # -*- coding: utf-8 -*-
-"""Defines the Response class, which can be modified to modulate the http
-response sent back to the client. Response is formatted according to expected
-AWS SAM format.
+"""Generic Http Response representation returned from Refget functions
+
+The Response class represents the genericized HTTP response returned from all
+Refget functions. The generic response is used to create a 
+Vendor/Platform-specific response (e.g. Tornado Server Response,
+AWS lambda response dictionary) based on the deployment context, which is then
+passed to the deployment framework's downstream processes.
 """
 
 from ga4gh.refget.http.status_codes import StatusCodes as SC
 
 class Response(object):
-    """an HTTP response, sends back appropriate response to client
+    """Generic representation of HTTP response returned from Refget functions
 
-    For each web api route, a Response object is created and modified through
-    a chain of middleware checks. If, at the end of a middleware function, the
-    response status code is OK (200), the next function will execute. If ever
-    the status code is modified to an error, the response will be sent back to
-    client without executing further processing steps.
-
-    :param status_code: response status code
-    :type status_code: int
-    :param headers: http headers
-    :type headers: dict[str, str]
-    :param body: response body
-    :type body: str
-    :param data: data dict accessible throughout all middleware functions
-    :type data: dict[str, str]
+    Attributes:
+        status_code (int): HTTP status code
+        headers (dict): key-value mapping of HTTP response headers
+        body (str): response body
+        data (dict): common data-dictionary to pass resources between functions
     """
 
     def __init__(self):
-        """Constructor method"""
+        """Response constructor"""
 
         self.status_code = SC.BAD_REQUEST
         self.headers = {}
@@ -38,132 +33,132 @@ class Response(object):
     ##################################################
     
     def set_body(self, body):
-        """set response body
+        """Set response body
 
-        :param body: string to set to response body
-        :type body: str
+        Arguments:
+            body (str): string to set to response body
         """
 
         self.body = body
     
     def get_body(self):
-        """get response body
+        """Get response body
 
-        :return: response body
-        :rtype: str
+        Returns:
+            (str): response body
         """
 
         return self.body
     
     def set_status_code(self, status_code):
-        """set status code
+        """Set HTTP status code
 
-        :param status_code: int to set to status code
-        :type status_code: int
+        Arguments:
+            status_code (int): HTTP status code to associate with response
         """
 
         self.status_code = status_code
     
     def get_status_code(self):
-        """get status code
+        """Get HTTP status code
 
-        :return: response status code
-        :rtype: int
+        Returns:
+            (int): HTTP status code associated with response
         """
 
         return self.status_code
     
     def put_header(self, key, value):
-        """add or update a key-value pair to response headers
+        """Add or update a key-value pair to response headers
 
-        :param key: header key/name
-        :type key: str
-        :param value: value for this header
-        :type value: str
+        Arguments:
+            key (str): response header key/name
+            value (str): value for this header
         """
 
         self.headers[key] = value
     
     def update_headers(self, new_dict):
-        """add or update multiple header keys and values
+        """Add or update multiple header keys and values
 
-        This method accepts a dictionary of new headers, and will update the 
-        existing header dictionary with the new keys and values.
+        Accepts a dictionary of new headers, and will update the existing
+        header dictionary with the new keys and values.
 
-        :param new_dict: dictionary to update headers with
-        :type new_dict: dict[str, str]
+        Arguments:
+            new_dict (dict): key-value mapping of new headers
         """
 
         self.headers.update(new_dict)
     
     def get_header(self, key):
-        """get the value of a particular header
+        """Get the value of a particular header
 
-        :param key: header key/name
-        :type key: str
-        :return: value of specified header
-        :rtype: str
+        Arguments:
+            key (str): header key/name
+
+        Returns:
+            value of specified header
         """
 
         return self.headers[key]
     
     def get_headers(self):
-        """get complete header dictionary
+        """Get complete header dictionary
 
-        :return: header dictionary
-        :rtype: dict[str, str]
+        Returns:
+            (dict): header dictionary
         """
 
         return self.headers
     
     def put_data(self, key, value):
-        """add or update a key-value pair to data dictionary
+        """Add or update a key-value pair to data dictionary
 
-        :param key: data key/name
-        :type key: str
-        :param value: value to store under key
-        :type value: str
+        Arguments:
+            key (str): data key/name
+            value (str): value to store under key
         """
 
         self.data[key] = value
     
     def update_data(self, new_dict):
-        """add or update multiple keys and values to data dictionary
+        """Add or update multiple keys and values to data dictionary
 
         This method accepts a dictionary of new data, and will update the
-        existing data dictionary with the new keys and values. 
+        existing data dictionary with the new keys and values.
 
-        :param new_dict: dictionary to update data dictionary with
-        :type new_dict: dict[str, str]
+        Arguments:
+            new_dict (dict): dictionary to update data dictionary with
         """
 
         self.data.update(new_dict)
 
     def get_datum(self, key):
-        """get the value under the specified key in data dictionary
+        """Get the value under the specified key in data dictionary
 
-        :param key: data key/name
-        :type key: str
-        :return: value under specified key in data dictionary
-        :rtype: str
+        Arguments:
+            key (str): data key/name
+        
+        Returns:
+            (str): value under specified key in data dictionary
         """
 
         return self.data[key]
     
     def get_data(self):
-        """get complete data dictionary
+        """Get complete data dictionary
 
-        :return: data dictionary
-        :rtype: dict[str, str]
+        Returns:
+            (dict): data dictionary
         """
 
         return self.data
     
     def set_redirect_found(self, url):
-        """set the response to redirect client to specified url
+        """Set the response to redirect client to specified url
 
-        :param url: redirect url
-        :type url: str
+        Arguments:
+            url (str): redirection location url
         """
 
         self.set_status_code(SC.REDIRECT_FOUND)

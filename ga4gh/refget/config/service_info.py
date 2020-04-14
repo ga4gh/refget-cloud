@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Information about the refget service"""
+"""Refget Service Info, used for /sequence/service-info endpoint"""
 
 SERVICE_INFO = {
     "circular_supported": False,
@@ -7,8 +7,4 @@ SERVICE_INFO = {
     "subsequence_limit": 300000,
     "supported_api_versions": ["1.0"]
 }
-"""Dictionary containing information about refget service"""
-
-__all__ = [
-    "SERVICE_INFO"
-]
+"""Refget Service Info Dictionary"""

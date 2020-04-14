@@ -1,28 +1,27 @@
 # -*- coding: utf-8 -*-
-"""Checks request headers for correct/appropriate media types"""
+"""Checks request headers for correct and appropriate media types"""
 
 import json
 from ga4gh.refget.http.status_codes import StatusCodes as SC
 from ga4gh.refget.config.constants import *
 
 class MediaTypeMW(object):
-    """Middleware, checks request for appropriate media types
+    """Middleware, checks request for correct and appropriate media types
 
     MediaTypeMW middleware checks the "Accept" header of the request. If the
-    request only accepts MIME types that the refget app cannot satisfy, it sets
-    the response status code to NOT ACCEPTABLE
+    request only accepts MIME types that the refget service cannot satisfy, it
+    sets the response status code to NOT ACCEPTABLE
     """
 
     @staticmethod
     def middleware_func(request, response, supported_media_types):
-        """performs all media type validation submethods
+        """Performs all media type validations
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
-        :param supported_media_types: MIME types supported by server route
-        :type supported_media_types: list[str]
+        Arguments:
+            request (Request): refget generic request
+            response (Response): modifiable, refget generic response
+            supported_media_types (list): list of supported MIME media type
+                strings for a given endpoint
         """
 
         # get a list of client's accepted media types according to its
@@ -41,13 +40,13 @@ class MediaTypeMW(object):
 
     @staticmethod
     def __assign_default_media_type(request):
-        """set default media types if no request "Accept" header
+        """Set default media types if no request "Accept" header
 
         If the request doesn't contain an "Accept" header, then assume the
         client will accept refget's MIME types
 
-        :param event: AWS SAM event (incl. headers, path params, query params)
-        :type event: dict[str, object]
+        Arguments:
+            request (Request): Refget generic request
         """
 
         media_types = []
@@ -75,12 +74,10 @@ class MediaTypeMW(object):
         supported_types):
         """Check if server can fulfill request accepted media types
 
-        :param resp: response object to modify
-        :type resp: class:`ga4gh.refget.serverless.cls.http.response.Response`
-        :param client_types: accepted MIME types from client 'Accept' header
-        :type client_types: list[str]
-        :param supported_types: MIME types this API route allows
-        :type supported_types: list[str]
+        Arguments:
+            resp (Response): Modifiable, Refget generic response
+            client_types (list): accepted MIME types from client Accept header
+            supported_types (list): MIME types supported by web service endpoint
         """
 
         # first, set status code to NOT ACCEPTABLE, in case we do not find
@@ -104,14 +101,14 @@ def MediaTypeMidware(properties, request, response,
                      supported_media_types=[CONTENT_TYPE_JSON]):
     """Creates the media type middleware decorator function
 
-    :param event: AWS SAM event (incl. headers, path params, query params)
-    :type event: dict[str, object]
-    :param context: AWS SAM context
-    :type context: dict[str, str]
-    :param supported_media_types: supported MIME types for this api route
-    :type supported_media_types: list[str]
-    :return: media type middleware decorator function
-    :rtype: function
+    Arguments:
+        properties (Properties): runtime properties
+        request (Request): generic refget request
+        response (Response): modifiable, generic refget response
+        supported_media_types (list): supported MIME types
+
+    Returns:
+        (function): media type middleware decorator function
     """
 
     def decorator_function(func):
