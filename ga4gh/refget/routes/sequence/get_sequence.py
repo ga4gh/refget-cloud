@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Update response to contain full/partial sequence, directly or by redirect"""
+
 import requests
 from ga4gh.refget.http.status_codes import StatusCodes as SC
 from ga4gh.refget.http.response import Response
@@ -6,6 +9,18 @@ from ga4gh.refget.middleware.query_parameters import QueryParametersMidware
 from ga4gh.refget.util.resolve_url import resolve_sequence_url
 
 def get_sequence(properties, request, response):
+    """Refget function, get requested sequence
+
+    The get_sequence function corresponds to the /sequence/{seqid}
+    endpoint described in the refget API specification. First performs media
+    type and query parameter validation, then returns redirect to object
+    sequence location 
+
+    Arguments:
+        properties (Properties): runtime properties
+        request (Request): generic refget request
+        response (Response): modifiable, generic refget response
+    """
     
     @MediaTypeMidware(properties, request, response)
     @QueryParametersMidware(properties, request, response)

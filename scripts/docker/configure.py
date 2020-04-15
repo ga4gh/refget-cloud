@@ -1,6 +1,17 @@
+# -*- coding: utf-8 -*-
+"""Helper for docker containers. Writes environment variables to properties file
+
+This script is run when running the refget tornado server in a docker container.
+It writes environment variables to a properties file, which is then loaded 
+as the runtime properties object in the Tornado context. Passing environment
+variables to the docker container modifies what cloud storage service the 
+refget server points to.
+"""
+
 import os
 
 def main():
+    """Write refget-specific environment variables to properties file"""
     
     content = []
     properties_file = "./config/application.properties"
