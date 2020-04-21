@@ -1,9 +1,8 @@
 [![Logo](https://www.ga4gh.org/wp-content/themes/ga4gh-theme/gfx/GA-logo-horizontal-tag-RGB.svg)](https://ga4gh.org)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
-[![Travis (.org) branch](https://img.shields.io/travis/ga4gh/refget-serverless/master.svg?style=flat-square)](https://travis-ci.org/ga4gh/refget-serverless)
-[![Coverage Status](https://img.shields.io/coveralls/github/ga4gh/refget-serverless.svg?style=flat-square)](https://coveralls.io/github/ga4gh/refget-serverless?branch=master)
-[![Documentation Status](https://readthedocs.org/projects/refget-serverless/badge/?version=latest&style=flat-square)](https://refget-serverless.readthedocs.io/en/latest/?badge=latest)
+[![Travis (.org) branch](https://img.shields.io/travis/ga4gh/refget-cloud/master.svg?style=flat-square)](https://travis-ci.org/ga4gh/refget-cloud)
+[![Coverage Status](https://img.shields.io/coveralls/github/ga4gh/refget-cloud.svg?style=flat-square)](https://coveralls.io/github/ga4gh/refget-cloud?branch=master)
 
 # Refget Cloud
 
