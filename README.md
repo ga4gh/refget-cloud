@@ -7,11 +7,13 @@
 
 # Refget Cloud
 
-Configurable Refget service. Can be configured to run in multiple deployment contexts (server/serverless) and serve data from multiple cloud-based sources.
+Configurable, python-based Refget web service. Can be configured to run in multiple deployment contexts (e.g. containerized server, serverless) and serve data from multiple cloud-based sources.
 
 Refget Cloud is an implementation of the [Refget API Specification v1.0.0](https://samtools.github.io/hts-specs/refget.html), developed by the [Global Alliance for Genomics and Health](https://www.ga4gh.org/).
 
-If you are interested in setting up your own serverless implementation of refget using a cloud-based object store, please feel free to review the [API documentation](https://refget-serverless.readthedocs.io/en/latest/).
+Currently, this codebase has been deployed to serve reference sequences from the [International Nucleotide Sequence Database Collaboration (INSDC)](http://www.insdc.org/). Click [here](https://refget-insdc.jeremy-codes.com/index.html) to view its OpenAPI documentation and begin accessing sequences.
+
+If you are interested in setting up your own serverless implementation of refget using a cloud-based object store, please review the [documention](docs/INDEX.md) to get started.
 
 ## Supported Deployment Contexts
 
