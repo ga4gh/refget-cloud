@@ -1,6 +1,10 @@
 #!/bin/bash
 
 PROPERTIES_FILE="./config/application.properties"
+CMD="refget-server"
 
 python scripts/docker/configure.py
-refget-server --properties-file ${PROPERTIES_FILE}
+
+if [[ -f ${PROPERTIES_FILE} ]]; then CMD="${CMD} --properties-file ${PROPERTIES_FILE}"; fi
+
+$CMD

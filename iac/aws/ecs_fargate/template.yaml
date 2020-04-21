@@ -6,6 +6,11 @@ Description: Refget Deployment using ECS and Fargate
 ##################################################
 
 Parameters:
+  DockerImage:
+    Type: String
+    Default: ga4gh/refget-cloud:0.3.0
+  LocalOpenApiFile:
+    Type: String
   Port:
     Type: String
     Default: 80
@@ -71,10 +76,12 @@ Resources:
         - FARGATE
       ContainerDefinitions:
         - Name: refget-insdc-container
-          Image: ga4gh/refget-cloud:0.1.1
+          Image: !Ref DockerImage
           Environment:
             - Name: SERVER_PORT
               Value: !Ref Port
+            - Name: LOCAL_OPENAPI_FILE
+              Value: !Ref LocalOpenApiFile
           PortMappings:
             - ContainerPort: !Ref Port
               HostPort: !Ref Port
@@ -98,14 +105,8 @@ Resources:
     Properties:
       Name: refget-insdc
       ProtocolType: HTTP
+      Target: !Ref ECSTaskAddress
 
-  ApiStage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      ApiId: !Ref Api
-      AutoDeploy: true
-      StageName: prd
-  
   ApiDomainName:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
@@ -118,55 +119,4 @@ Resources:
     Properties:
       ApiId: !Ref Api
       DomainName: !Ref ApiDomainName
-      Stage: !Ref ApiStage
-
-  ApiRouteServiceInfo:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref Api
-      RouteKey: GET /sequence/service-info
-      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationServiceInfo]]
-
-  ApiRouteSequence:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref Api
-      RouteKey: GET /sequence/{seqid}
-      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationSequence]]
-        
-  ApiRouteMetadata:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref Api
-      RouteKey: GET /sequence/{seqid}/metadata
-      Target: !Join [ "/", ["integrations", !Ref ApiIntegrationMetadata]]
-
-  ApiIntegrationServiceInfo:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref Api
-      ConnectionType: INTERNET
-      IntegrationMethod: GET
-      IntegrationType: HTTP_PROXY
-      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "service-info"]]
-      PayloadFormatVersion: 1.0
-  
-  ApiIntegrationSequence:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref Api
-      ConnectionType: INTERNET
-      IntegrationMethod: GET
-      IntegrationType: HTTP_PROXY
-      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "{seqid}"]]
-      PayloadFormatVersion: 1.0
-  
-  ApiIntegrationMetadata:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId: !Ref Api
-      ConnectionType: INTERNET
-      IntegrationMethod: GET
-      IntegrationType: HTTP_PROXY
-      IntegrationUri: !Join [ "/", [!Ref ECSTaskAddress, "sequence", "{seqid}", "metadata"]]
-      PayloadFormatVersion: 1.0
+      Stage: '$default'

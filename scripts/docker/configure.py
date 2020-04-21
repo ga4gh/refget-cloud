@@ -10,7 +10,7 @@ refget server points to.
 
 import os
 
-def main():
+def configure_properties_file():
     """Write refget-specific environment variables to properties file"""
     
     content = []
@@ -19,15 +19,20 @@ def main():
         "source.base_url",
         "source.sequence_path",
         "source.metadata_path",
-        "server.port"
+        "server.port",
+        "local.openapi_file"
     ]
     for prop in properties:
         envvar_name = prop.replace(".", "_").upper()
         envvar_value = os.getenv(envvar_name)
         if envvar_value:
             content.append(prop + "=" + envvar_value)
+    
+    if len(content) > 0:
+        open(properties_file, "w").write("\n".join(content) + "\n")
 
-    open(properties_file, "w").write("\n".join(content) + "\n")
-
+def main():
+    configure_properties_file()
+    
 if __name__ == "__main__":
     main()

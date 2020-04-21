@@ -2,6 +2,8 @@
 """Update response to contain full/partial sequence, directly or by redirect"""
 
 import requests
+from ga4gh.refget.config.constants import CONTENT_TYPE_TEXT_REFGET_VND, \
+    CONTENT_TYPE_TEXT_VND_NEUTRAL
 from ga4gh.refget.http.status_codes import StatusCodes as SC
 from ga4gh.refget.http.response import Response
 from ga4gh.refget.middleware.media_type import MediaTypeMidware
@@ -22,7 +24,9 @@ def get_sequence(properties, request, response):
         response (Response): modifiable, generic refget response
     """
     
-    @MediaTypeMidware(properties, request, response)
+    @MediaTypeMidware(properties, request, response, 
+        supported_media_types=[CONTENT_TYPE_TEXT_REFGET_VND,
+                               CONTENT_TYPE_TEXT_VND_NEUTRAL])
     @QueryParametersMidware(properties, request, response)
     def worker(properties, request, response):
         # get start, end subsequence positions from middleware,

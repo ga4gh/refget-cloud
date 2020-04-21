@@ -9,7 +9,7 @@ import tornado.web
 from ga4gh.refget.config.logger import logger
 from ga4gh.refget.config.exceptions import \
     RefgetException, RefgetPropertiesFileNotFoundException, \
-    RefgetPropertiesParseException
+    RefgetPropertiesParseException, RefgetOpenApiNotFoundException
 from ga4gh.refget.config.properties import Properties
 from ga4gh.refget.http.request import Request
 from ga4gh.refget.http.response import Response
@@ -34,6 +34,7 @@ class RefgetServer(object):
         """
         
         self.properties_file = properties_file
+        self.swagger_ui_dir = "./web/swagger-ui"
         self.properties = None
         self.application = None
         self.__setup()
@@ -51,6 +52,8 @@ class RefgetServer(object):
         
         logger.info("setting server properties")
         self.__setup_properties()
+        logger.info("setting OpenAPI routes")
+        self.__setup_openapi()
         logger.info("setting server api routes")
         self.__setup_application()
         logger.info("setup complete")
@@ -90,10 +93,26 @@ class RefgetServer(object):
         
         self.properties = Properties(props)
     
+    def __setup_openapi(self):
+        
+        openapi_file = self.properties.get("local.openapi_file")
+
+        if not openapi_file:
+            logger.info("no OpenAPI file provided. Swagger UI will not be available")
+        else:
+            logger.info("moving %s to Swagger UI directory" % openapi_file)
+            if not os.path.exists(openapi_file):
+                raise RefgetOpenApiNotFoundException(
+                    "OpenAPI file: %s not found" % openapi_file)
+
+            openapi_output_file = self.swagger_ui_dir + "/openapi.yaml"
+            openapi_content = open(openapi_file, "r").read()
+            open(openapi_output_file, "w").write(openapi_content)
+    
     def __setup_application(self):
         """Setup server routes by assigning function handlers to api routes"""
 
-        self.application = tornado.web.Application([
+        refget_routes = [
             (
                 r"/sequence/service-info",
                 GetServiceInfoHandler,
@@ -109,7 +128,16 @@ class RefgetServer(object):
                 GetMetadataHandler,
                 dict(properties=self.properties)
             )
-        ])
+        ]
+
+        swaggerui_routes = [
+            (r"/(.*)", tornado.web.StaticFileHandler, {'path': self.swagger_ui_dir})
+        ]
+
+        routes = refget_routes + swaggerui_routes \
+                 if self.properties.get("local.openapi_file") \
+                 else refget_routes
+        self.application = tornado.web.Application(routes)
 
 class RefgetRequestHandler(tornado.web.RequestHandler):
     """Generic request handler for all refget-related requests
@@ -198,18 +226,23 @@ class GetMetadataHandler(RefgetRequestHandler):
         get_metadata(self.properties, self.g_request, self.g_response)
         self.finalize_response()
 
+class SwaggerUIHandler(tornado.web.RequestHandler):
+    
+    def get(self):
+        self.write("There's an openapi specified")
+
 @click.command()
 @click.option('--properties-file', help='Path to server properties file')
-def run_server(properties_file):
+def run_server(**kwargs):
     """Run refget tornado web server
 
     Arguments:
-        properties_file (str): path to runtime properties file 
+        kwargs (dict): dictionary of commandline properties
     """
-    
+
     logger.info("program started")
     try:
-        server = RefgetServer(properties_file)
+        server = RefgetServer(kwargs['properties_file'])
         server.run()
     except RefgetException as ex:
         msg_template = "exiting program: exit_code: {}, message: {}"

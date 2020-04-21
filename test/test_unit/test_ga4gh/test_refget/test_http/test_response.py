@@ -4,7 +4,8 @@
 import pytest
 from ga4gh.refget.http.response import Response
 from ga4gh.refget.http.status_codes import StatusCodes as SC
-from ga4gh.refget.config.constants import CONTENT_TYPE_JSON, CONTENT_TYPE_TEXT
+from ga4gh.refget.config.constants import CONTENT_TYPE_JSON_REFGET_VND, \
+    CONTENT_TYPE_TEXT_REFGET_VND
 
 testdata_body = [
     ("ACGT"),
@@ -19,8 +20,8 @@ testdata_status_code = [
 ]
 
 testdata_header = [
-    ("Content-Type", CONTENT_TYPE_JSON),
-    ("Content-Type", CONTENT_TYPE_TEXT),
+    ("Content-Type", CONTENT_TYPE_JSON_REFGET_VND),
+    ("Content-Type", CONTENT_TYPE_TEXT_REFGET_VND),
     ("Content-Type", "application/json")
 ]
 

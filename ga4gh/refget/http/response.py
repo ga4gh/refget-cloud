@@ -8,7 +8,9 @@ AWS lambda response dictionary) based on the deployment context, which is then
 passed to the deployment framework's downstream processes.
 """
 
+import json
 from ga4gh.refget.http.status_codes import StatusCodes as SC
+from ga4gh.refget.config.constants import CONTENT_TYPE_JSON_REFGET_VND
 
 class Response(object):
     """Generic representation of HTTP response returned from Refget functions
@@ -163,3 +165,15 @@ class Response(object):
 
         self.set_status_code(SC.REDIRECT_FOUND)
         self.put_header("Location", url)
+    
+    def set_error(self, code, message):
+        """Set the generic response to an error
+
+        Arguments:
+            code (int): HTTP status code representing error encountered
+            message (str): error message in response body
+        """
+
+        self.set_status_code(code)
+        self.put_header("Content-Type", CONTENT_TYPE_JSON_REFGET_VND)
+        self.set_body(json.dumps({"message": message}))

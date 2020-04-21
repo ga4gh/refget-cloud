@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: INSDC Refget Mirror
+  description: |
+    ## Overview
+
+    This web service serves genomic reference sequences from the 
+    [International Nucleotide Sequence Database Collaboration (INSDC)](http://www.insdc.org/)
+    according to the
+    [Reference Sequence Retrieval (Refget)](https://samtools.github.io/hts-specs/refget.html)
+    API protocol. Refget is an open protocol developed and maintained by the
+    [Global Alliance for Genomics and Health (GA4GH)](https://ga4gh.org)
+
+    ### Supported checksum identifiers
+
+    The Refget protocol prescribes the access of sequences by an unambiguous,
+    vendor-neutral identifier that is derived from a hash digest of the raw
+    sequence content. One or more hashing functions can be supported.
+
+    The following checksum identifier formats are supported by this service:
+
+    * GA4GH Variant Representation sequence checksum
+    * Refget protocol Trunc512
+    * MD5
+
+  contact:
+    name: EBI and GA4GH
+    url: https://ga4gh.org
+    email: jeremy.adams@ga4gh.org
+  version: 0.3.0
+servers:
+  - url: https://refget-insdc.jeremy-codes.com
+    description: INSDC Refget production service
+paths:
+  /sequence/service-info:
+    get:
+      description: Returns information about this refget web service
+      summary: Get information about this web service
+      operationId: getServiceInfo
+      responses:
+        200:
+          description: successful service info response
+          content:
+            application/vnd.ga4gh.refget.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfo'
+        406:
+          $ref: '#/components/responses/NotAcceptable'
+      tags:
+        - sequence
+  /sequence/{seqid}:
+    get:
+      description: Returns raw sequence content for the specified checksum identifier
+      summary: Get reference sequence by its checksum identifier
+      operationId: getSequence
+      parameters:
+        - $ref: '#/components/parameters/SeqId'
+        - $ref: '#/components/parameters/Range'
+      responses:
+        200:
+          description: successful sequence content response
+          content:
+            text/vnd.ga4gh.refget.v1.0.0+plain:
+              schema:
+                $ref: '#/components/schemas/Sequence'
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Sequence'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        406:
+          $ref: '#/components/responses/NotAcceptable'
+        416:
+          $ref: '#/components/responses/RequestedRangeNotSatisfiable'
+        501:
+          $ref: '#/components/responses/NotImplemented'
+      tags:
+        - sequence
+  /sequence/{seqid}/metadata:
+    get:
+      tags:
+        - sequence
+      description: Returns metadata for a single reference sequence
+      summary: Get reference sequence metadata by its checksum identifier
+      operationId: getSequenceMetadata
+      parameters:
+        - $ref: '#/components/parameters/SeqId'
+      responses:
+        200:
+          description: successful sequence metadata response
+          content:
+            application/vnd.ga4gh.refget.v1.0.0+json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceMetadata'
+        404:
+          $ref: '#/components/responses/NotFound'
+        406:
+          $ref: '#/components/responses/NotAcceptable'
+components:
+  schemas:
+    ServiceInfo:
+      type: object
+      properties:
+        service:
+          $ref: '#/components/schemas/ServiceProperties'
+    ServiceProperties:
+      type: object
+      properties:
+        circular_supported:
+          type: boolean
+          example: false
+        algorithms:
+          type: array
+          items:
+            type: string
+            example: trunc512
+        subsequence_limit:
+          type: integer
+          example: 300000
+        supported_api_versions:
+          type: array
+          items:
+            type: string
+            example: 1.0
+    Sequence:
+      type: string
+      example: AGGTTATCGGGCTATGACCG
+    SequenceMetadata:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/SequenceMetadataProperties'
+    SequenceMetadataProperties:
+      type: object
+      properties:
+        length:
+          type: integer
+          example: 1579
+        aliases:
+          type: array
+          items:
+            type: object
+            properties:
+              naming_authority:
+                type: string
+                example: INSDC
+              alias:
+                type: string
+                example: WNFN01013402.1
+        id:
+          type: string
+          example: 1cac8cbb0c0459b7540d77e4e68d441b119ea819a89fa4a9
+        trunc512:
+          type: string
+          example: 1cac8cbb0c0459b7540d77e4e68d441b119ea819a89fa4a9
+        md5:
+          type: string
+          example: 000000ca1658e86c7439f5b4f1c1341c
+    ErrorBadRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Cannot provide both sequence start/end AND Range
+    ErrorNotAcceptable:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Requested media type(s) not supported
+    ErrorRequestedRangeNotSatisfiable:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Invalid sequence range provided
+    ErrorNotImplemented:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Server does not support circular sequences
+  responses:
+    BadRequest:
+      description: Request could not be completed due to malformed parameters and/or headers
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/ErrorBadRequest'
+    NotFound:
+      description: Sequence content or metadata by the specified checksum identifier was not found
+    NotAcceptable:
+      description: No media type(s) in request 'Accept' header supported by server
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/ErrorNotAcceptable'
+    RequestedRangeNotSatisfiable:
+      description: The requested subsequence coordinates are invalid
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/ErrorRequestedRangeNotSatisfiable'
+    NotImplemented:
+      description: Circular sequence coordinates were requested, but circular sequences are not supported by server
+      content:
+        '*/*':
+          schema:
+            $ref: '#/components/schemas/ErrorNotImplemented'
+  parameters:
+    SeqId:
+      in: path
+      description: sequence checksum identifier
+      required: true
+      schema:
+        type: string
+        example: ga4gh:SQ.-09YlbMZxqiDUFnajrk81rBWbkqIOFFb
+    Range:
+      in: header
+      description: Start and end coordinates of requested subsequence
+      required: false
+      schema:
+        type: string

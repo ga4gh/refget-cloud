@@ -13,11 +13,15 @@ DEFAULT_SOURCE_METADATA_PATH = "/metadata/json/{seqid}.json"
 DEFAULT_SERVER_PORT = 8888
 """Default port server runs on"""
 
+DEFAULT_LOCAL_OPENAPI_FILE = None
+"""By default, no openapi file provided, server will not serve Swagger UI"""
+
 DEFAULT_ALLOWED_PROPERTY_KEYS = {
     "source.base_url",
     "source.sequence_path",
     "source.metadata_path",
-    "server.port"
+    "server.port",
+    "local.openapi_file"
 }
 """Allowed modifiable properties in properties file"""
 
@@ -25,6 +29,7 @@ DEFAULT_PROPERTIES = {
     "source.base_url": DEFAULT_SOURCE_BASE_URL,
     "source.sequence_path": DEFAULT_SOURCE_SEQUENCE_PATH,
     "source.metadata_path": DEFAULT_SOURCE_METADATA_PATH,
-    "server.port": DEFAULT_SERVER_PORT
+    "server.port": DEFAULT_SERVER_PORT,
+    "local.openapi_file": DEFAULT_LOCAL_OPENAPI_FILE
 }
 """Default properties for each property key"""

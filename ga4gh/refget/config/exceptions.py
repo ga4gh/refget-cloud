@@ -97,3 +97,20 @@ class RefgetPropertiesParseException(RefgetException):
 
         super(RefgetPropertiesParseException, self).__init__(msg)
         self.exit_code = 4
+
+class RefgetOpenApiNotFoundException(RefgetException):
+    """Exception for when the specified openapi file was not found
+
+    Attributes:
+        exit_code (int): exception exit code
+    """
+
+    def __init__(self, msg):
+        """RefgetOpenApiNotFoundException constructor
+        
+        Arguments:
+            msg (str): exception message
+        """
+
+        super(RefgetOpenApiNotFoundException, self).__init__(msg)
+        self.exit_code = 5

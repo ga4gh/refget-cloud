@@ -1,7 +1,7 @@
 import setuptools
 
 NAME = "refget-serverless"
-VERSION = "0.1.0"
+VERSION = "0.3.0"
 AUTHOR = "Jeremy Adams"
 EMAIL = "jeremy.adams@ga4gh.org"
 
