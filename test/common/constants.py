@@ -1,0 +1,7 @@
+TRUNC512_PHAGE = "2085c82d80500a91dd0b8aa9237b0e43f1c07809bd6e6785"
+TRUNC512_CEREVISIAE = "959cb1883fc1ca9ae1394ceb475a356ead1ecceff5824ae7"
+TRUNC512_NONEXISTENT = "222222222222222222222222222222222222222222222222"
+FILESERVER_PROPS_DICT = {
+    "source.base_url": "http://localhost:8080",
+    "source.metadata_path": "/sequence/{seqid}/metadata"
+}

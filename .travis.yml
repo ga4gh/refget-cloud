@@ -3,11 +3,11 @@ python:
   - '3.6'
 install:
   - python -m pip install --upgrade pip
+  - python setup.py install
   - python -m pip install -r requirements_test.txt
 before_script:
-  - export PYTHONPATH=sam/lib:$PYTHONPATH
-  - export PYTHONPATH=sam/unittests:$PYTHONPATH
+  - cd test/common/fileserver && python -m http.server 8080 &
 script:
-  - pytest --cov=sam/lib/ --cov-report=term-missing sam/unittests/test_refget/
+  - python -m pytest --cov=ga4gh/ --cov-report=term-missing test/
 after_success:
   - coveralls

@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  refget-serverless
+  AWS Serverless implementation of GA4GH Refget service
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  DependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: Dependencies
+      Description: Python dependencies
+      # CodeUri: 's3://ga4gh-dependencies/refget-serverless.zip'
+      # ContentUri: 's3://ga4gh-dependencies/refget-serverless.zip'
+      ContentUri:
+        Bucket: ga4gh-dependencies
+        Key: refget-serverless.zip
+      ContentUri: './layer'
+      CompatibleRuntimes:
+        - python3.7
+      LicenseInfo: 'Available under the MIT-0 license.'
+      RetentionPolicy: Retain
+  GetServiceInfoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../../
+      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_service_info
+      Runtime: python3.7
+      Layers:
+        - !Ref DependenciesLayer
+      Events:
+        GetServiceInfo:
+          Type: Api
+          Properties:
+            Path: /sequence/service-info
+            Method: get
+  GetSequenceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../../
+      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_sequence
+      Runtime: python3.7
+      Layers:
+        - !Ref DependenciesLayer
+      # Environment:
+      #   Variables:
+      #     SOURCE_BASE_URL: https://datasource.com
+      #     SOURCE_SEQUENCE_PATH: /path/to/sequence/by/{seqid}
+      Events:
+        GetSequence:
+          Type: Api
+          Properties:
+            Path: /sequence/{seqid}
+            Method: get
+  GetMetadataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../../
+      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_metadata
+      Runtime: python3.7
+      Layers:
+        - !Ref DependenciesLayer
+      Events:
+        GetMetadata:
+          Type: Api
+          Properties:
+            Path: /sequence/{seqid}/metadata
+            Method: get
+Outputs:
+  RefgetApi:
+    Description: "API Gateway endpoint URL for Prod stage for Refget Serverless function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/refget/"
+  GetServiceInfoFunction:
+    Description: "Get Service Info Lambda Function ARN"
+    Value: !GetAtt GetServiceInfoFunction.Arn
+  GetSequenceFunction:
+    Description: "Get Sequence Lambda Function ARN"
+    Value:
+      Fn::GetAtt:
+      - GetSequenceFunction
+      - Arn
+  GetMetadataFunction:
+    Description: "Get Metadata Lambda Function ARN"
+    Value:
+      Fn::GetAtt:
+      - GetMetadataFunction
+      - Arn
+  RefgetIamRole:
+    Description: "Implicit IAM Role created for Refget functions"
+    Value: !GetAtt GetServiceInfoFunctionRole.Arn
