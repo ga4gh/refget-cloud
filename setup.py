@@ -1,7 +1,8 @@
 import setuptools
+import os
 
-NAME = "refget-serverless"
-VERSION = "0.3.0"
+NAME = "refget-cloud"
+VERSION = "0.3.1"
 AUTHOR = "Jeremy Adams"
 EMAIL = "jeremy.adams@ga4gh.org"
 
@@ -27,6 +28,8 @@ install_requires = [
     'urllib3'
 ]
 
+os.chdir("lib")
+
 setuptools.setup(
     name=NAME,
     version=VERSION,
@@ -36,7 +39,7 @@ setuptools.setup(
         + "architectures",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/ga4gh/refget-serverless",
+    url="https://github.com/ga4gh/refget-cloud",
     package_data={'': ['web/*/*', 'schemas/*']},
     packages=setuptools.find_packages(),
     install_requires=install_requires,

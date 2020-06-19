@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY config config
 COPY scripts scripts
 COPY setup.py setup.py
-COPY ga4gh ga4gh
+COPY lib lib
 COPY README.md README.md
 COPY web web
 

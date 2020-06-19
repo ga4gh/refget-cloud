@@ -12,8 +12,6 @@ Resources:
     Properties:
       LayerName: Dependencies
       Description: Python dependencies
-      # CodeUri: 's3://ga4gh-dependencies/refget-serverless.zip'
-      # ContentUri: 's3://ga4gh-dependencies/refget-serverless.zip'
       ContentUri:
         Bucket: ga4gh-dependencies
         Key: refget-serverless.zip
@@ -25,8 +23,8 @@ Resources:
   GetServiceInfoFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../../../
-      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_service_info
+      CodeUri: ../../../lib
+      Handler: ga4gh.refget.serverless.aws.awslambda.functions.get_service_info
       Runtime: python3.7
       Layers:
         - !Ref DependenciesLayer
@@ -39,15 +37,11 @@ Resources:
   GetSequenceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../../../
-      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_sequence
+      CodeUri: ../../../lib
+      Handler: ga4gh.refget.serverless.aws.awslambda.functions.get_sequence
       Runtime: python3.7
       Layers:
         - !Ref DependenciesLayer
-      # Environment:
-      #   Variables:
-      #     SOURCE_BASE_URL: https://datasource.com
-      #     SOURCE_SEQUENCE_PATH: /path/to/sequence/by/{seqid}
       Events:
         GetSequence:
           Type: Api
@@ -57,8 +51,8 @@ Resources:
   GetMetadataFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ../../../
-      Handler: ga4gh.refget.serverless.aws.lambda.functions.get_metadata
+      CodeUri: ../../../lib
+      Handler: ga4gh.refget.serverless.aws.awslambda.functions.get_metadata
       Runtime: python3.7
       Layers:
         - !Ref DependenciesLayer

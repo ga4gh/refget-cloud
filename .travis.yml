@@ -8,6 +8,6 @@ install:
 before_script:
   - cd test/common/fileserver && python -m http.server 8080 &
 script:
-  - python -m pytest --cov=ga4gh/ --cov-report=term-missing test/
+  - export PYTHONPATH=lib/ && python -m pytest --cov=lib/ga4gh/ --cov-report=term-missing test/
 after_success:
   - coveralls

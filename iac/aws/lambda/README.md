@@ -10,7 +10,7 @@
 
 ### Test application locally
 ```bash
-sam build --use-container
+sam build -u -m ../../../requirements.txt
 sam local start-api
 ```
 
