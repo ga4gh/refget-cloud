@@ -2,7 +2,7 @@ coverage==4.5.3
 pytest==4.4.2
 pytest-cov==2.7.1
 python-coveralls==2.9.2
-certifi==2019.6.16
+certifi==2022.12.7
 chardet==3.0.4
 idna==2.8
 requests==2.22.0
